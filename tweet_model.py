@@ -1,13 +1,31 @@
 from numpy import array
+import numpy as np
 from pickle import dump
 from keras.preprocessing.text import Tokenizer
 from keras.utils import to_categorical
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.layers import LSTM
+from keras.layers import LSTM, Activation
 from helper import word_to_index, index_to_word
 from keras.layers import Embedding
+from sklearn.model_selection import train_test_split
 import pandas as pd
+import sys
+from gensim.models import Word2Vec
+
+def get_data(screen_name, sequence_lengths):
+	df = pd.read_csv(screen_name+"_model_input.csv")
+	embedding_columns = [col for col in list(df.columns) if col.startswith("embedding")]
+
+	rawX = df[embedding_columns]
+	rawY = df.next_word_embedding
+
+	X = rawX.values
+	y = rawY.values
+
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=2020)
+
+	return X_train, X_test, y_train, y_test
 
 def build_model(screen_name, embeddings_model):
 
@@ -22,70 +40,41 @@ def build_model(screen_name, embeddings_model):
 	model.add(Activation('softmax'))
 	model.compile(optimizer='adam', loss='sparse_categorical_crossentropy')
 
-def train_model(screen_name, model):
+	return model
+
+def train_model(screen_name, model, X_train, X_test, y_train, y_test):
+	model.fit(X_train, y_train, batch_size=32, epochs=200)
+
+
+def sample(preds, temperature=1.0):
+	if temperature <= 0:
+		return np.argmax(preds)
+	preds = np.asarray(preds).astype('float64')
+	preds = np.log(preds) / temperature
+	exp_preds = np.exp(preds)
+	preds = exp_preds / np.sum(exp_preds)
+	probas = np.random.multinomial(1, preds, 1)
+	return np.argmax(probas)
+
+def generate_next(word_idxs, model, embeddings_model, num_generated=20):
+	# word_idxs = [word_to_index(embeddings_model, word) for word in text]
+	#print(word_idxs)
+	for i in range(num_generated):
+		#print(np.array(word_idxs))
+		prediction = model.predict(x=np.array(word_idxs))
+		idx = sample(prediction[-1], temperature=0.7)
+		word_idxs.append(idx)
+	return ' '.join(index_to_word(embeddings_model, idx) for idx in word_idxs)
 
 
 if __name__ == '__main__':
 	screen_name = sys.argv[1]
-	build_model(screen_name)
-
-# # load
-
-# df = pd.read_csv("realdonaldtrump_formatted.csv")
-# df = df.dropna()
-# text = df.text_f.str.cat(sep=" ")
+	sequence_length = 3
+	embeddings_model = Word2Vec.load(screen_name + "_embeddings.bin")
 
 
-# chars = sorted(list(set(text)))
-# print('total chars:', len(chars))
-# char_indices = dict((c, i) for i, c in enumerate(chars))
-# indices_char = dict((i, c) for i, c in enumerate(chars))
+	X_train, X_test, y_train, y_test = get_data(screen_name, sequence_length)
+	model = build_model(screen_name, embeddings_model)
+	train_model(screen_name, model, X_train, X_test, y_train, y_test)
 
-# # cut the text in semi-redundant sequences of maxlen characters
-# maxlen = 280
-# sentences = df.text_f.tolist()
-
-# #in_filename = 'republic_sequences.txt'
-# doc = text #doc = load_doc(in_filename)
-# lines = sentences #lines = doc.split('\n')
-# print(max([len(s.split(" ")) for s in lines]))
- 
-# # integer encode sequences of words
-# tokenizer = Tokenizer()
-# tokenizer.fit_on_texts(lines)
-# sequences_t = tokenizer.texts_to_sequences(lines)
-
-# sequences = list()
-# for s in sequences_t:
-# 	arr = [0] * 31
-# 	for i,r in enumerate(s):
-# 		arr[i] = r
-# 	sequences.append(arr)
-
-# # vocabulary size
-# vocab_size = len(tokenizer.word_index) + 1
-
-# # separate into input and output
-
-# sequences = array(sequences)
-# X, y = sequences[:,:-1], sequences[:,-1]
-# y = to_categorical(y, num_classes=vocab_size)
-# seq_length = X.shape[1]
- 
-# # define model
-# model = Sequential()
-# model.add(Embedding(vocab_size, 31, input_length=seq_length))
-# model.add(LSTM(100, return_sequences=True))
-# model.add(LSTM(100))
-# model.add(Dense(100, activation='relu'))
-# model.add(Dense(vocab_size, activation='softmax'))
-# print(model.summary())
-# # compile model
-# model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-# # fit model
-# model.fit(X, y, batch_size=32, epochs=20)
- 
-# # save the model to file
-# model.save('model.h5')
-# # save the tokenizer
-# dump(tokenizer, open('tokenizer.pkl', 'wb'))
+	print(generate_next(X_test[0].tolist(), model, embeddings_model))
