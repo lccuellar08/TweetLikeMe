@@ -37,20 +37,21 @@ def build_model(screen_name, embeddings_model):
 	model = Sequential()
 	model.add(Embedding(input_dim=vocab_size, output_dim=embeddings_size, 
 	                    weights=[pretrained_weights]))
-	model.add(LSTM(units = embeddings_size, return_sequences = True))
-	model.add(Dropout(0.8))
-	model.add(LSTM(units = 32))
+	model.add(LSTM(units = embeddings_size, return_sequences = False))
 	model.add(Dropout(0.5))
-	model.add(Dense(units = 32, activation = 'relu'))
-	model.add(Dropout(0.5))
+	# model.add(LSTM(units = 32))
+	# model.add(Dropout(0.5))
+	# model.add(Dense(units = 32, activation = 'relu'))
+	# model.add(Dropout(0.5))
 	model.add(Dense(units=vocab_size))
 	model.add(Activation('softmax'))
-	model.compile(optimizer = Adam(learning_rate = 0.001), loss = 'sparse_categorical_crossentropy')
+	model.compile(optimizer = Adam(learning_rate = 0.01), loss = 'sparse_categorical_crossentropy')
 
 	return model
 
 def train_model(screen_name, model, X_train, X_test, y_train, y_test):
-	model.fit(X_train, y_train, batch_size=128, epochs=200, validation_data = (X_test, y_test))
+	model.fit(X_train, y_train, batch_size=128, epochs=100, validation_data = (X_test, y_test))
+	model.save(screen_name+"_trained_model.h5")
 
 
 def sample(preds, temperature=1.0):

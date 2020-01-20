@@ -21,7 +21,7 @@ def main(screen_name):
 	model = build_model(screen_name, embeddings_model)
 	train_model(screen_name, model, X_train, X_test, y_train, y_test)
 
-	print(generate_next(X_train[0].tolist(), model, embeddings_model))
+	#print(generate_next(model, embeddings_model))
 
 
 if __name__ == "__main__":
