@@ -4,6 +4,8 @@ import re
 import sys
 
 def format_tweets(df, screen_name):
+	# print(df.columns)
+	# print(df)
 	# Remove all text that contains "http" or ""
 	for i,row in df.iterrows():
 		tokens = row['text'].split(" ")
@@ -23,6 +25,7 @@ def format_tweets(df, screen_name):
 	df = df[df['text_f'] != '']
 
 	df.to_csv(screen_name+"_formatted.csv", index=False)
+	return(df)
 
 if __name__ == '__main__':
 	screen_name = sys.argv[1]

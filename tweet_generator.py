@@ -31,5 +31,5 @@ def generate_next(word_idxs, model, embeddings_model, num_generated=20):
 		word_idxs.append(idx)
 	return ' '.join(index_to_word(embeddings_model, idx) for idx in word_idxs)
 
-if __name__ == "main":
-	model = 
+if __name__ == "__main__":
+	pass

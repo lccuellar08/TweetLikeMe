@@ -59,7 +59,8 @@ def get_all_tweets(screen_name):
 		writer.writerows(outtweets)
 	
 	raw_tweetsDF = pd.DataFrame(outtweets)
-	return outtweets
+	raw_tweetsDF.columns = ['id', 'created_at', 'text']
+	return(raw_tweetsDF)
 
 
 if __name__ == '__main__':

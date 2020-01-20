@@ -14,8 +14,8 @@ import pandas as pd
 import sys
 from gensim.models import Word2Vec
 
-def get_data(screen_name, sequence_length):
-	df = pd.read_csv(screen_name+"_model_input.csv")
+def get_data(df, screen_name, sequence_length):
+	#df = pd.read_csv(screen_name+"_model_input.csv")
 	embedding_columns = [col for col in list(df.columns) if col.startswith("embedding")]
 
 	rawX = df[embedding_columns]
@@ -24,7 +24,7 @@ def get_data(screen_name, sequence_length):
 	X = rawX.values
 	y = rawY.values
 
-	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=2020)
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=2020)
 
 	return X_train, X_test, y_train, y_test
 
@@ -40,9 +40,9 @@ def build_model(screen_name, embeddings_model):
 	model.add(LSTM(units = embeddings_size, return_sequences = True))
 	model.add(Dropout(0.8))
 	model.add(LSTM(units = 32))
-	model.add(Dropout(0.25))
-	model.add(Dense(units = 1024, activation = 'relu'))
-	model.add(Dropout(0.175))
+	model.add(Dropout(0.5))
+	model.add(Dense(units = 32, activation = 'relu'))
+	model.add(Dropout(0.5))
 	model.add(Dense(units=vocab_size))
 	model.add(Activation('softmax'))
 	model.compile(optimizer = Adam(learning_rate = 0.001), loss = 'sparse_categorical_crossentropy')
@@ -50,7 +50,7 @@ def build_model(screen_name, embeddings_model):
 	return model
 
 def train_model(screen_name, model, X_train, X_test, y_train, y_test):
-	model.fit(X_train, y_train, batch_size=32, epochs=150, validation_data = (X_test, y_test))
+	model.fit(X_train, y_train, batch_size=128, epochs=200, validation_data = (X_test, y_test))
 
 
 def sample(preds, temperature=1.0):
