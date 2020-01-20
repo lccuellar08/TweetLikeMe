@@ -3,12 +3,7 @@ import pandas as pd
 import re
 import sys
 
-#data['text'] = data['text'].apply(lambda x: x.lower())
-#data['text'] = data['text'].apply((lambda x: re.sub('[^a-zA-z0-9\s]','',x)))
-
-def main(screenname):
-	df = pd.read_csv(screenname+"_tweets.csv")
-
+def format_tweets(df, screen_name):
 	# Remove all text that contains "http" or ""
 	for i,row in df.iterrows():
 		tokens = row['text'].split(" ")
@@ -27,8 +22,8 @@ def main(screenname):
 	# Remove all empty tweets
 	df = df[df['text_f'] != '']
 
-	df.to_csv(screenname+"_formatted.csv", index=False)
+	df.to_csv(screen_name+"_formatted.csv", index=False)
 
 if __name__ == '__main__':
 	screen_name = sys.argv[1]
-	main(screen_name)
+	format_tweets(screen_name)

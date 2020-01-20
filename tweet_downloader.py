@@ -5,6 +5,7 @@ import tweepy #https://github.com/tweepy/tweepy
 import csv
 import sys
 import config as cfg
+import pandas as pd
 
 #Twitter API credentials
 consumer_key = cfg.consumer_key
@@ -24,7 +25,7 @@ def get_all_tweets(screen_name):
 	#initialize a list to hold all the tweepy Tweets
 	alltweets = []	
 	
-	#make initial request for most recent tweets (200 is the maximum allowed count)
+	#make initial request for most recent tweets (100 is the maximum allowed count)
 	new_tweets = api.user_timeline(screen_name = screen_name,count=100)
 	
 	#save most recent tweets
@@ -57,7 +58,8 @@ def get_all_tweets(screen_name):
 		writer.writerow(["id","created_at","text"])
 		writer.writerows(outtweets)
 	
-	pass
+	raw_tweetsDF = pd.DataFrame(outtweets)
+	return outtweets
 
 
 if __name__ == '__main__':

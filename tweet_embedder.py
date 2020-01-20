@@ -5,7 +5,7 @@ from helper import word_to_index, index_to_word
 from gensim.models import Word2Vec
 
 
-def prepare_data(screen_name, sequence_length, embeddings_model):
+def prepare_data(df, screen_name, sequence_length, embeddings_model):
 	df = pd.read_csv(screen_name+"_formatted.csv")
 	tweets = df.text_f.values.tolist()
 	split_tweets = [tweet.split(" ") for tweet in tweets if len(tweet.split(" ")) > sequence_length]
@@ -45,9 +45,11 @@ def prepare_data(screen_name, sequence_length, embeddings_model):
 
 	tweetsDF.to_csv(screen_name+"_model_input.csv", index = False)
 
+	return(tweetsDF)
 
-def create_embeddings(screen_name, sequence_length):
-	df = pd.read_csv(screen_name+"_formatted.csv")
+
+def create_embeddings(df, screen_name, sequence_length):
+	# df = pd.read_csv(screen_name+"_formatted.csv")
 	tweets = df.text_f.values.tolist()
 	split_tweets = [tweet.split(" ") for tweet in tweets]
 	model = Word2Vec(split_tweets, min_count = 1	)

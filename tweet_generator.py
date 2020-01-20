@@ -13,29 +13,23 @@ import random
 import sys
 import io
 
+def sample(preds, temperature=1.0):
+	if temperature <= 0:
+		return np.argmax(preds)
+	preds = np.asarray(preds).astype('float64')
+	preds = np.log(preds) / temperature
+	exp_preds = np.exp(preds)
+	preds = exp_preds / np.sum(exp_preds)
+	probas = np.random.multinomial(1, preds, 1)
+	return np.argmax(probas)
 
-df = pd.read_csv("realdonaldtrump_formatted.csv")
-text = df.text_f.str.cat(sep=" ")
+def generate_next(word_idxs, model, embeddings_model, num_generated=20):
+	for i in range(num_generated):
+		#print(np.array(word_idxs))
+		prediction = model.predict(x=np.array(word_idxs))
+		idx = sample(prediction[-1], temperature=0.7)
+		word_idxs.append(idx)
+	return ' '.join(index_to_word(embeddings_model, idx) for idx in word_idxs)
 
-
-
-# cut the text in semi-redundant sequences of maxlen characters
-maxlen = 280
-sentences = df.text_f.tolist()
-
-# Tokenizer
-def tokenize_input(text):
-    tokenizer = RegexpTokenizer(r'\w+')
-    tokens = tokenizer.tokenize(input)
-
-    # if the created token isn't in the stop words, make it part of "filtered"
-    filtered = filter(lambda token: token not in stopwords.words('english'), tokens)
-    return " ".join(filtered)
-
-processed_inputs = tokenize_input(text)
-
-chars = sorted(list(set(text)))
-print('total chars:', len(chars))
-
-char_indices = dict((c, i) for i, c in enumerate(chars))
-indices_char = dict((i, c) for i, c in enumerate(chars))
+if __name__ == "main":
+	model = 
