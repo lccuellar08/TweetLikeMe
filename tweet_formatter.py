@@ -29,4 +29,5 @@ def format_tweets(df, screen_name):
 
 if __name__ == '__main__':
 	screen_name = sys.argv[1]
-	format_tweets(screen_name)
+	df = pd.read_csv(screen_name+"_tweets.csv")
+	format_tweets(df, screen_name)

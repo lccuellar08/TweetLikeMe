@@ -4,9 +4,17 @@ import numpy as np
 from helper import word_to_index, index_to_word
 from gensim.models import Word2Vec
 
+def create_embeddings(df, screen_name, sequence_length):
+	tweets = df.text_f.values.tolist()
+	split_tweets = [tweet.split(" ") for tweet in tweets if len(tweet.split(" ")) > sequence_length]
+	model = Word2Vec(split_tweets, size = 100, window = sequence_length - 1, sg = 1, min_count = 1)
+
+	model.save(screen_name+"_embeddings.bin")
+
+	return(model)
 
 def prepare_data(df, screen_name, sequence_length, embeddings_model):
-	df = pd.read_csv(screen_name+"_formatted.csv")
+	#
 	tweets = df.text_f.values.tolist()
 	split_tweets = [tweet.split(" ") for tweet in tweets if len(tweet.split(" ")) > sequence_length]
 
@@ -48,19 +56,10 @@ def prepare_data(df, screen_name, sequence_length, embeddings_model):
 	return(tweetsDF)
 
 
-def create_embeddings(df, screen_name, sequence_length):
-	# df = pd.read_csv(screen_name+"_formatted.csv")
-	tweets = df.text_f.values.tolist()
-	split_tweets = [tweet.split(" ") for tweet in tweets]
-	model = Word2Vec(split_tweets, min_count = 1	)
-	# print(model.wv.index2word)
-
-	model.save(screen_name+"_embeddings.bin")
-
-	return(model)
-
 if __name__ == '__main__':
 	screen_name = sys.argv[1]
 	sequence_length = 3
-	model = create_embeddings(screen_name, sequence_length)
-	prepare_data(screen_name, sequence_length, model)
+	df = pd.read_csv(screen_name+"_formatted.csv")
+
+	model = create_embeddings(df, screen_name, sequence_length)
+	prepare_data(df, screen_name, sequence_length, model)
