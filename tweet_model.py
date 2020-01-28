@@ -8,12 +8,13 @@ from keras.layers import Dense
 from keras.layers import LSTM, Activation, Dropout, SimpleRNN
 from helper import word_to_index, index_to_word
 from keras.layers import Embedding
-from keras.optimizers import Adam
+from keras.optimizers import Adam, SGD
 from sklearn.model_selection import train_test_split
 from keras import regularizers
 import pandas as pd
 import sys
 from gensim.models import Word2Vec
+import matplotlib.pyplot as plt
 
 def get_data(df, screen_name, sequence_length):
 	embedding_columns = [col for col in list(df.columns) if col.startswith("embedding")]
@@ -38,22 +39,30 @@ def build_model(screen_name, embeddings_model):
 	model.add(Embedding(input_dim=vocab_size, output_dim=embeddings_size, 
 	                    weights=[pretrained_weights]))
 	model.add(Dropout(0.4))
-	model.add(SimpleRNN(units = embeddings_size, recurrent_dropout = 0.8, recurrent_regularizer = regularizers.l2(0.001)))
-	model.add(Dropout(0.9))
+	model.add(SimpleRNN(units = embeddings_size, recurrent_dropout = 0.7, recurrent_regularizer = regularizers.l2(0.001)))
+	model.add(Dropout(0.8))
 	# model.add(LSTM(units = 256))
 	# model.add(Dropout(0.9))
 	# model.add(LSTM(units = 32))
 	# model.add(Dropout(0.5))
-	# model.add(Dense(units = 32, activation = 'relu'))
+	# model.add(Dense(units = 16, activation = 'relu', activity_regularizer = regularizers.l2(0.001)))
 	# model.add(Dropout(0.5))
 	model.add(Dense(units=vocab_size))
 	model.add(Activation('softmax'))
-	model.compile(optimizer = Adam(learning_rate = 0.005), loss = 'sparse_categorical_crossentropy')
+	optimizer = SGD(lr = 0.005, decay = 1e-9, momentum = 0.90)
+	model.compile(optimizer = optimizer, loss = 'sparse_categorical_crossentropy')
 
 	return model
 
 def train_model(screen_name, model, X_train, X_test, y_train, y_test):
-	model.fit(X_train, y_train, batch_size=128, epochs=50, validation_data = (X_test, y_test))
+	n_epochs = 100
+	history = model.fit(X_train, y_train, batch_size=32, epochs=n_epochs, validation_data = (X_test, y_test))
+
+	plt.plot(range(0, n_epochs), history.history['loss'], label = "loss")
+	plt.plot(range(0, n_epochs), history.history['val_loss'], label = "val_loss")
+	plt.legend()
+	plt.show()
+
 	model.save(screen_name+"_trained_model.h5")
 
 
