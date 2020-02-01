@@ -1,6 +1,6 @@
 # Project Title
 
-Tweet Like Me is an end-to-end pipeline that given a specified twitter user, will download their tweets, format them, train a model, and generate texts meant to simulate the user's tweets. The model is an LSTM architecture that uses the user's tweets as the corpus for training the Word2Vec embeddings.
+Tweet Like Me is an end-to-end pipeline that given a specified twitter user, will download their tweets, format them, train a model, and generate texts meant to simulate the user's tweets. The model is an RNN architecture that uses the user's tweets as the corpus for training the Word2Vec embeddings.
 
 ### Prerequisites
 
@@ -24,7 +24,7 @@ pip install requirements.txt
 
 To run the end to end pipeline, all you need is the Twitter handle of a publicly available user, and Twitter API credentials.
 
-First enter the credentials into confing.py
+First enter the credentials into config.py
 
 Then we run main.py using the Twitter handle as an argument
 
@@ -34,4 +34,4 @@ python main.py barackobama
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
+* Tweet_Downloader.py uses code from https://gist.github.com/yanofsky/5436496
