@@ -1,20 +1,16 @@
-from numpy import array
-import numpy as np
-from pickle import dump
-from keras.preprocessing.text import Tokenizer
-from keras.utils import to_categorical
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM, Activation, Dropout, SimpleRNN
-from helper import word_to_index, index_to_word
-from keras.layers import Embedding
-from keras.optimizers import Adam, SGD
-from sklearn.model_selection import train_test_split
-from keras import regularizers
 import pandas as pd
 import sys
-from gensim.models import Word2Vec
+import numpy as np
 import matplotlib.pyplot as plt
+
+from helper import word_to_index, index_to_word
+from sklearn.model_selection import train_test_split
+from gensim.models import Word2Vec
+
+from keras.models import Sequential
+from keras.layers import Activation, Dropout, SimpleRNN, Dense, Embedding
+from keras.optimizers import SGD
+from keras import regularizers
 
 def get_data(df, screen_name, sequence_length):
 	embedding_columns = [col for col in list(df.columns) if col.startswith("embedding")]
@@ -41,12 +37,6 @@ def build_model(screen_name, embeddings_model):
 	model.add(Dropout(0.4))
 	model.add(SimpleRNN(units = embeddings_size, recurrent_dropout = 0.7, recurrent_regularizer = regularizers.l2(0.001)))
 	model.add(Dropout(0.8))
-	# model.add(LSTM(units = 256))
-	# model.add(Dropout(0.9))
-	# model.add(LSTM(units = 32))
-	# model.add(Dropout(0.5))
-	# model.add(Dense(units = 16, activation = 'relu', activity_regularizer = regularizers.l2(0.001)))
-	# model.add(Dropout(0.5))
 	model.add(Dense(units=vocab_size))
 	model.add(Activation('softmax'))
 	optimizer = SGD(lr = 0.005, decay = 1e-9, momentum = 0.90)
@@ -55,7 +45,7 @@ def build_model(screen_name, embeddings_model):
 	return model
 
 def train_model(screen_name, model, X_train, X_test, y_train, y_test):
-	n_epochs = 100
+	n_epochs = 500
 	history = model.fit(X_train, y_train, batch_size=32, epochs=n_epochs, validation_data = (X_test, y_test))
 
 	plt.plot(range(0, n_epochs), history.history['loss'], label = "loss")
@@ -64,25 +54,6 @@ def train_model(screen_name, model, X_train, X_test, y_train, y_test):
 	plt.show()
 
 	model.save(screen_name+"_trained_model.h5")
-
-
-def sample(preds, temperature=1.0):
-	if temperature <= 0:
-		return np.argmax(preds)
-	preds = np.asarray(preds).astype('float64')
-	preds = np.log(preds) / temperature
-	exp_preds = np.exp(preds)
-	preds = exp_preds / np.sum(exp_preds)
-	probas = np.random.multinomial(1, preds, 1)
-	return np.argmax(probas)
-
-def generate_next(word_idxs, model, embeddings_model, num_generated=20):
-	for i in range(num_generated):
-		#print(np.array(word_idxs))
-		prediction = model.predict(x=np.array(word_idxs))
-		idx = sample(prediction[-1], temperature=0.7)
-		word_idxs.append(idx)
-	return ' '.join(index_to_word(embeddings_model, idx) for idx in word_idxs)
 
 
 if __name__ == '__main__':

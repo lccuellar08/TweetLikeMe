@@ -14,21 +14,10 @@ def create_embeddings(df, screen_name, sequence_length):
 	return(model)
 
 def prepare_data(df, screen_name, sequence_length, embeddings_model):
-	#
 	tweets = df.text_f.values.tolist()
 	split_tweets = [tweet.split(" ") for tweet in tweets if len(tweet.split(" ")) > sequence_length]
 
-	# Now for every tweet, let's create this dataframe such as:
-	#  ___________________________________
-	# | TWEET SEQUENCE 	     | NEXT WORD  | 
-	# |----------------------|------------|
-	# | ['this','is','a'] 	 | 'tweet'    |
-	# | ['is','a', 'tweet']  | 'of'		  |
-	# | ['a', 'tweet' ,'of'] | 'multiple' |
-	# |______________________|____________|
-
 	tweet_records = []
-
 	embedding_columns = ["embedding_"+str(i) for i in range(0,sequence_length)]
 
 	for tweet in split_tweets:
@@ -45,8 +34,6 @@ def prepare_data(df, screen_name, sequence_length, embeddings_model):
 			record.update(tweet_sequence_embedding)
 
 			tweet_records.append(record)
-
-
 
 	tweetsDF = pd.DataFrame(tweet_records)
 	tweetsDF = tweetsDF[embedding_columns + ['tweet_sequence', 'next_word', 'next_word_embedding']]

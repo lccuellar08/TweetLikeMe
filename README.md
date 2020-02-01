@@ -4,15 +4,9 @@ Tweet Like Me is an end-to-end pipeline that given a specified twitter user, wil
 
 ### Prerequisites
 
-[FILL IN LATER]
-
-```
-Give examples
-```
+In order to run this project, one requires to have API credentials for Twitter's API. The credentials will then be entered into config.py
 
 ### Installing
-
-A step by step series of examples that tell you how to get a development env running
 
 Download the repository
 
@@ -26,30 +20,18 @@ Insall the requirements
 pip install requirements.txt
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+## Running
 
-## Running the tests
+To run the end to end pipeline, all you need is the Twitter handle of a publicly available user, and Twitter API credentials.
 
-Explain how to run the automated tests for this system
+First enter the credentials into confing.py
 
-### Break down into end to end tests
-
-Explain what these tests test and why
+Then we run main.py using the Twitter handle as an argument
 
 ```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
+python main.py barackobama
 ```
 
 ## Acknowledgments
 
 * Hat tip to anyone whose code was used
-* Inspiration
-* etc

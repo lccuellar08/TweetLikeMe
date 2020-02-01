@@ -32,7 +32,7 @@ def generate_next(word_idxs, model, embeddings_model, num_generated=20):
 		word_idxs.append(idx)
 	return ' '.join(index_to_word(embeddings_model, idx) for idx in word_idxs)
 
-def generate_tweets(model, embeddings_model, tweet_length, sequence_length):
+def generate_tweet(model, embeddings_model, tweet_length, sequence_length):
 	beggining_word_idx = random.sample(range(0, len(embeddings_model.wv.vocab)), sequence_length)
 	words = [index_to_word(embeddings_model, word_idx) for word_idx in beggining_word_idx]
 
@@ -45,12 +45,19 @@ def generate_tweets(model, embeddings_model, tweet_length, sequence_length):
 		tweet_str.append(next_word)
 	return ' '.join(tweet_str)
 
+def generate_multiple_tweets(n_tweets, model, embeddings_model, sequence_length):
+	for i in range(0, n_tweets):
+		tweet_length = random.randint(1,30)
+		print(generate_tweet(model, embeddings_model,tweet_length, sequence_length))
+		print("\n")
+
 if __name__ == "__main__":
 	screen_name = sys.argv[1]
 	sequence_length = 3
 	embeddings_model = Word2Vec.load(screen_name + "_embeddings.bin")
 	model = load_model(screen_name+"_trained_model.h5")
-	for i in range(0,10):
-		tweet_length = random.randint(1,30)
-		print(generate_tweets(model, embeddings_model,tweet_length, sequence_length))
-		print("\n")
+	generate_multiple_tweets(n_tweets = 10, model = model, embeddings_model = embeddings_model, sequence_length = sequence_length)
+	# for i in range(0,10):
+	# 	tweet_length = random.randint(1,30)
+	# 	print(generate_tweet(model, embeddings_model,tweet_length, sequence_length))
+	# 	print("\n")
