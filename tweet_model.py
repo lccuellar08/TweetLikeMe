@@ -45,13 +45,13 @@ def build_model(screen_name, embeddings_model):
 	return model
 
 def train_model(screen_name, model, X_train, X_test, y_train, y_test):
-	n_epochs = 500
+	n_epochs = 125
 	history = model.fit(X_train, y_train, batch_size=32, epochs=n_epochs, validation_data = (X_test, y_test))
 
-	plt.plot(range(0, n_epochs), history.history['loss'], label = "loss")
-	plt.plot(range(0, n_epochs), history.history['val_loss'], label = "val_loss")
-	plt.legend()
-	plt.show()
+	# plt.plot(range(0, n_epochs), history.history['loss'], label = "loss")
+	# plt.plot(range(0, n_epochs), history.history['val_loss'], label = "val_loss")
+	# plt.legend()
+	# plt.show()
 
 	model.save(screen_name+"_trained_model.h5")
 
