@@ -1,4 +1,4 @@
-# Project Title
+# Tweet Like Me
 
 Tweet Like Me is an end-to-end pipeline that given a specified twitter user, will download their tweets, format them, train a model, and generate texts meant to simulate the user's tweets. The model is an RNN architecture that uses the user's tweets as the corpus for training the Word2Vec embeddings.
 
