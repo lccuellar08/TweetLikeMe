@@ -14,7 +14,7 @@ Download the repository
 git clone https://github.com/lccuellar08/TweetLikeMe.git
 ```
 
-Insall the requirements
+Install the requirements
 
 ```
 pip install requirements.txt
